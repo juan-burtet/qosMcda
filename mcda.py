@@ -2,14 +2,15 @@
 import csv
 from service import Service
 from data import Data
+import copy
 
 class Mcda:    
     
-    responseTime = Data('Response Time')
-    availability = Data('Availability')
-    throughput = Data('Throughput')
-    reliability = Data('Reliability')
-    latency = Data('Latency')
+    responseTime = Data('Response Time', weight=1, maximized=False)
+    availability = Data('Availability', weight=1)
+    throughput = Data('Throughput', weight=1)
+    reliability = Data('Reliability', weight=1)
+    latency = Data('Latency', weight=1, maximized=False)
 
     serviceNameColumn = 5
     responseTimeColumn = 0
@@ -30,23 +31,56 @@ class Mcda:
                 next(reader)
 
             for row in reader:
+                newService = None
                 if row[0] in (None, ""):
                     break
                 else:                    
                     newService = Service(row[self.serviceNameColumn], self.responseTime, self.availability, self.throughput, self.reliability, self.latency)
 
-                    newService.setResponseTime(row[self.responseTimeColumn])
-                    newService.setAvailability(row[self.availabilityColumn])
-                    newService.setThroughput(row[self.throughputColumn])
-                    newService.setReliability(row[self.reliabilityColumn])
-                    newService.setLatency(row[self.latencyColumn])
+                    newService.setResponseTime(float(row[self.responseTimeColumn].replace(',','.')))
+                    newService.setAvailability(float(row[self.availabilityColumn].replace(',','.')))
+                    newService.setThroughput(float(row[self.throughputColumn].replace(',','.')))
+                    newService.setReliability(float(row[self.reliabilityColumn].replace(',','.')))
+                    newService.setLatency(float(row[self.latencyColumn].replace(',','.')))
 
-                    self.serviceList.append(newService)
-            # next(reader)
-            # for i in range(10):
-            #     vet = reader.next()
+                    self.serviceList.append(copy.deepcopy(newService))
+    
+    def calculateMcda(self):
+        wsrfMax = max(service.getWsrf() for service in self.serviceList)
 
-            #     matrixData.append(vet[0:5])
+        for service in self.serviceList:
+            service.updateMcda(wsrfMax)
+
+    def normalizeData(self):
+        rtAvrg = sum(float(service.responseTime.getValue()) for service in self.serviceList)/float(len(self.serviceList))
+        aAvrg = sum(float(service.availability.getValue()) for service in self.serviceList)/float(len(self.serviceList))
+        tAvrg = sum(float(service.throughput.getValue()) for service in self.serviceList)/float(len(self.serviceList))
+        rAvrg = sum(float(service.reliability.getValue()) for service in self.serviceList)/float(len(self.serviceList))
+        lAvrg = sum(float(service.latency.getValue()) for service in self.serviceList)/float(len(self.serviceList))
+        for service in self.serviceList:
+            service.responseTime.normalize(rtAvrg)
+            service.availability.normalize(aAvrg)
+            service.throughput.normalize(tAvrg)
+            service.reliability.normalize(rAvrg)
+            service.latency.normalize(lAvrg)
+
+    def calculateQuality(self):
+        rtMax = max(service.responseTime.getNormalizedValue() for service in self.serviceList)
+        aMax = max(service.availability.getNormalizedValue() for service in self.serviceList)
+        tMax = max(service.throughput.getNormalizedValue() for service in self.serviceList)
+        rMax = max(service.reliability.getNormalizedValue() for service in self.serviceList)
+        lMax = max(service.latency.getNormalizedValue() for service in self.serviceList)
+
+        for service in self.serviceList:
+            service.responseTime.setQuality(rtMax)
+            service.availability.setQuality(aMax)
+            service.throughput.setQuality(tMax)
+            service.reliability.setQuality(rMax)
+            service.latency.setQuality(lMax)
+        
+            service.updateWsrf()
+        
+        self.calculateMcda()
 
     def skipFirstRow(self, value):
         self.skipFirstRow = value

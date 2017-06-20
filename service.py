@@ -9,6 +9,9 @@ class Service:
     reliability = None
     latency = None
     name = None
+    wsrf = None
+    mcda = None
+    classification = None
 
     def __init__(self, name, responseTime, availability, throughput, reliability, latency):
         self.name = name
@@ -22,6 +25,33 @@ class Service:
         return self.name
     
     def __repr__(self):
+        return self.name
+
+    def updateWsrf(self):
+        self.wsrf = self.responseTime.getQuality() + self.availability.getQuality() + self.throughput.getQuality() + self.reliability.getQuality() + self.latency.getQuality()
+
+    def updateMcda(self, wsrfMax):
+        self.mcda = round((100*self.wsrf)/wsrfMax)
+
+        if (self.mcda > 70):
+            self.classification = 1
+        elif (self.mcda > 60):
+            self.classification = 2
+        elif (self.mcda > 50):
+            self.classification = 3
+        else:
+            self.classification = 4
+    
+    def getMcda(self):
+        return self.mcda
+    
+    def getClassification(self):
+        return self.classification
+
+    def getWsrf(self):
+        return self.wsrf
+    
+    def getName(self):
         return self.name
 
     def setResponseTime(self, value):
