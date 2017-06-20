@@ -4,13 +4,18 @@ from service import Service
 from data import Data
 import copy
 
-class Mcda:    
+class Mcda:
+    responseTimeWeight = 1
+    availabilityWeight = 1
+    throughputWeight = 1
+    reliabilityWeight = 1
+    latencyWeight = 1
     
-    responseTime = Data('Response Time', weight=1, maximized=False)
-    availability = Data('Availability', weight=1)
-    throughput = Data('Throughput', weight=1)
-    reliability = Data('Reliability', weight=1)
-    latency = Data('Latency', weight=1, maximized=False)
+    responseTime = Data('Response Time', weight=responseTimeWeight, maximized=False)
+    availability = Data('Availability', weight=availabilityWeight)
+    throughput = Data('Throughput', weight=throughputWeight)
+    reliability = Data('Reliability', weight=reliabilityWeight)
+    latency = Data('Latency', weight=latencyWeight, maximized=False)
 
     serviceNameColumn = 5
     responseTimeColumn = 0
@@ -102,6 +107,24 @@ class Mcda:
 
     def setLatencyColumn(self, column):
         self.latencyColumn = column
+
+
+
+    def setResponseTimeWeight(self, weight):
+        self.responseTimeWeight = weight
+
+    def setAvailabilityWeight(self, weight):
+        self.availabilityWeight = weight
+
+    def setThroughputWeight(self, weight):
+        self.throughputWeight = weight
+
+    def setReliabilityWeight(self, weight):
+        self.reliabilityWeight = weight
+
+    def setLatencyWeight(self, weight):
+        self.latencyWeight = weight
+
 
     def getServiceList(self):
         return self.serviceList

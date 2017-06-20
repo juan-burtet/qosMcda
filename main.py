@@ -10,6 +10,12 @@ mcda.setReliabilityColumn(3)
 mcda.setLatencyColumn(4)
 mcda.skipFirstRow(True)
 
+mcda.setResponseTimeWeight(1)
+mcda.setAvailabilityWeight(1)
+mcda.setThroughputWeight(1)
+mcda.setReliabilityWeight(1)
+mcda.setLatencyWeight(1)
+
 mcda.loadFromCSV('data.csv')
 
 mcda.normalizeData()
