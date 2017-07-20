@@ -69,7 +69,24 @@ class Service:
     def setLatency(self, value):
         self.latency.setValue(value)
 
+
+
+    def getResponseTime(self):
+        return self.responseTime
         
+    def getAvailability(self):
+        return self.availability
+        
+    def getThroughput(self):
+        return self.throughput
+        
+    def getReliability(self):
+        return self.reliability
+        
+    def getLatency(self):
+        return self.latency
+
+
 
     def setNormalizedResponseTime(self, value):
         self.responseTime.setNormalizedValue(value)

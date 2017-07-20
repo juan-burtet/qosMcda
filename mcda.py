@@ -3,6 +3,7 @@ import csv
 from service import Service
 from data import Data
 import copy
+import random
 
 class Mcda:
     responseTimeWeight = 1
@@ -26,6 +27,25 @@ class Mcda:
 
     serviceList=[]
     skipFirstRow = True
+    saveToFile = False
+
+    def __init__(self, saveToFile=False):
+        self.saveToFile = saveToFile
+
+    def loadFromRandom(self, size):
+        
+        for x in range(0, size):
+            newService = None            
+            newService = Service('service-'+str(x), self.responseTime, self.availability, self.throughput, self.reliability, self.latency)
+
+            newService.setResponseTime(random.randint(100, 400))
+            newService.setAvailability(random.randint(70, 100))
+            newService.setThroughput(random.randint(1, 15))
+            newService.setReliability(random.randint(50, 80))
+            newService.setLatency(random.randint(1, 200))
+
+            self.serviceList.append(copy.deepcopy(newService))
+    
 
     def loadFromCSV(self, file='data.csv'):
             
@@ -86,6 +106,54 @@ class Mcda:
             service.updateWsrf()
         
         self.calculateMcda()
+
+    def printResult(self):
+        for service in self.getServiceList():
+            print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(service.responseTime))
+            print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(service.availability))
+            print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(service.throughput))
+            print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(service.reliability))
+            print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(service.latency))
+
+            # print(service.getName()+" ("+str(service.getWsrf())+":"+str(service.getMcda())+":"+str(service.getClassification())+"): "+str(service.responseTime))
+            # print(service.getName()+" ("+str(service.getWsrf())+":"+str(service.getMcda())+":"+str(service.getClassification())+"): "+str(service.availability))
+            # print(service.getName()+" ("+str(service.getWsrf())+":"+str(service.getMcda())+":"+str(service.getClassification())+"): "+str(service.throughput))
+            # print(service.getName()+" ("+str(service.getWsrf())+":"+str(service.getMcda())+":"+str(service.getClassification())+"): "+str(service.reliability))
+            # print(service.getName()+" ("+str(service.getWsrf())+":"+str(service.getMcda())+":"+str(service.getClassification())+"): "+str(service.latency))
+
+    def storeResult(self, fileName="./newData.csv"):
+        with open(fileName, "wb") as csv_file:
+            writer = csv.writer(csv_file, delimiter=',')
+            serviceHeads = []
+            
+            serviceHeads.insert(self.responseTimeColumn, "Response Time");
+            serviceHeads.insert(self.availabilityColumn, "Availability");
+            serviceHeads.insert(self.throughputColumn,   "Throughput");
+            serviceHeads.insert(self.reliabilityColumn,  "Reliability");
+            serviceHeads.insert(self.latencyColumn,      "Latency");
+            serviceHeads.insert(self.serviceNameColumn,  "Service Name");
+            serviceHeads.insert(len(serviceHeads),   "");
+            serviceHeads.insert(len(serviceHeads)+1,   "WSRF");
+            serviceHeads.insert(len(serviceHeads)+2,   "MCDA");
+            serviceHeads.insert(len(serviceHeads)+3,   "Classification");
+            
+            writer.writerow(serviceHeads)
+
+            for value in self.getServiceList():
+                serviceInfoArr = []
+
+                serviceInfoArr.insert(self.responseTimeColumn, value.getResponseTime().getValue());
+                serviceInfoArr.insert(self.availabilityColumn, value.getAvailability().getValue());
+                serviceInfoArr.insert(self.throughputColumn,   value.getThroughput().getValue());
+                serviceInfoArr.insert(self.reliabilityColumn,  value.getReliability().getValue());
+                serviceInfoArr.insert(self.latencyColumn,      value.getLatency().getValue());
+                serviceInfoArr.insert(self.serviceNameColumn,  value.getName());
+
+                serviceInfoArr.insert(len(serviceInfoArr),   "");
+                serviceInfoArr.insert(len(serviceInfoArr)+1,   "{0:.2f}".format(value.getWsrf()));
+                serviceInfoArr.insert(len(serviceInfoArr)+2,   value.getMcda());
+                serviceInfoArr.insert(len(serviceInfoArr)+3,   value.getClassification());
+                writer.writerow(serviceInfoArr)
 
     def skipFirstRow(self, value):
         self.skipFirstRow = value
