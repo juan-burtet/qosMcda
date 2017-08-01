@@ -17,18 +17,19 @@ mcda.setThroughputWeight(1)
 mcda.setReliabilityWeight(1)
 mcda.setLatencyWeight(1)
 
-mcda.loadFromRandom(500000)
-# mcda.loadFromCSV('data.csv')
+mcda.loadFromRandom(50000)
+#mcda.loadFromCSV('data.csv')
 
 start = time.clock()
 
 mcda.normalizeData()
-#mcda.calculateQuality()
+mcda.calculateQuality()
+
 print("sequencial time: "+str(time.clock() - start))
 start = time.clock()
 
 mcda.normalizeDataP()
-#mcda.calculateQualityP()
+mcda.calculateQualityP()
 
 print("thread time: "+str(time.clock() - start))
 
