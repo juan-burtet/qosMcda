@@ -33,6 +33,6 @@ mcda.calculateQualityP()
 
 print("thread time: "+str(time.clock() - start))
 
-#mcda.storeResult()
+mcda.storeResult()
 
 # mcda.printResult()

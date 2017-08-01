@@ -8,6 +8,7 @@ import random
 import threading as t
 import itertools    
 from multiprocessing.dummy import Pool as ThreadPool 
+from multiprocessing import Process, RawValue, Lock
 
 class Mcda:
     responseTimeWeight = 1
@@ -32,6 +33,20 @@ class Mcda:
     serviceList=[]
     skipFirstRow = True
     saveToFile = False
+
+    lock = Lock()
+
+    rtAvrg = 0
+    aAvrg = 0
+    tAvrg = 0
+    rAvrg = 0
+    lAvrg = 0
+    
+    rtMax = 0
+    aMax = 0
+    tMax = 0
+    rMax = 0
+    lMax = 0
 
     def __init__(self, saveToFile=False):
         self.saveToFile = saveToFile
@@ -79,147 +94,210 @@ class Mcda:
 
         for service in self.serviceList:
             service.updateMcda(wsrfMax)
-
-    def avgServiceThroughput(self, slist):
-        avg = sum(float(service.throughput.getValue()) for service in slist)/float(len(slist))
-        return avg
-    def avgServiceResponseTime(self, slist):
-        avg = sum(float(service.responseTime.getValue()) for service in slist)/float(len(slist))
-        return avg
-    def avgServiceAvailability(self, slist):
-        avg = sum(float(service.availability.getValue()) for service in slist)/float(len(slist))
-        return avg
-    def avgServiceReliability(self, slist):
-        avg = sum(float(service.reliability.getValue()) for service in slist)/float(len(slist))
-        return avg
-    def avgServiceLatency(self, slist):
-        avg = sum(float(service.latency.getValue()) for service in slist)/float(len(slist))
-        return avg
-
+    
     def normalizeData(self):
-        rtAvrg = sum(float(service.responseTime.getValue()) for service in self.serviceList)/float(len(self.serviceList))
-        aAvrg = sum(float(service.availability.getValue()) for service in self.serviceList)/float(len(self.serviceList))
-        tAvrg = sum(float(service.throughput.getValue()) for service in self.serviceList)/float(len(self.serviceList))
-        rAvrg = sum(float(service.reliability.getValue()) for service in self.serviceList)/float(len(self.serviceList))
-        lAvrg = sum(float(service.latency.getValue()) for service in self.serviceList)/float(len(self.serviceList))
+        rtAvrg = 0
+        aAvrg = 0
+        tAvrg = 0
+        rAvrg = 0
+        lAvrg = 0
+
+        listSize  = float(len(self.serviceList))
+
+        for service in self.serviceList:
+            rtAvrg += float(service.responseTime.getValue())
+            aAvrg += float(service.availability.getValue())
+            tAvrg += float(service.throughput.getValue())
+            rAvrg += float(service.reliability.getValue())
+            lAvrg += float(service.latency.getValue())
+
+        rtAvrg = float(rtAvrg/listSize)
+        aAvrg = float(aAvrg/listSize)
+        tAvrg = float(tAvrg/listSize)
+        rAvrg = float(rAvrg/listSize)
+        lAvrg = float(lAvrg/listSize)
+
         for service in self.serviceList:
             service.responseTime.normalize(rtAvrg)
             service.availability.normalize(aAvrg)
             service.throughput.normalize(tAvrg)
             service.reliability.normalize(rAvrg)
             service.latency.normalize(lAvrg)
+
+    def calculateSum(self, service):
+        with self.lock:
+            self.rtAvrg += float(service.responseTime.getValue())
+            self.aAvrg += float(service.availability.getValue())
+            self.tAvrg += float(service.throughput.getValue())
+            self.rAvrg += float(service.reliability.getValue())
+            self.lAvrg += float(service.latency.getValue())
+    
+    def normalizeService(self, service):
+        service.responseTime.normalize(self.rtAvrg)
+        service.availability.normalize(self.aAvrg)
+        service.throughput.normalize(self.tAvrg)
+        service.reliability.normalize(self.rAvrg)
+        service.latency.normalize(self.lAvrg)
 
     def normalizeDataP(self):
-        # pool = ThreadPool(4) 
+        self.rtAvrg = 0
+        self.aAvrg = 0
+        self.tAvrg = 0
+        self.rAvrg = 0
+        self.lAvrg = 0
 
-        # pool.map_async(self.avgServiceThroughput, self.serviceList)
-        # pool.map_async(self.avgServiceResponseTime, self.serviceList)
-        # pool.map_async(self.avgServiceAvailability, self.serviceList)
-        # pool.map_async(self.avgServiceReliability, self.serviceList)
-        # pool.map_async(self.avgServiceLatency, self.serviceList)
+        listSize = len(self.serviceList)
+        # ranges = listSize/4
 
+        pool = ThreadPool(4) 
 
-        # pool.close() 
-        # pool.join() 
-        t1 = threadWithReturn(target=self.avgServiceThroughput, args=(self.serviceList,))
-        t2 = threadWithReturn(target=self.avgServiceResponseTime, args=(self.serviceList,))
-        t3 = threadWithReturn(target=self.avgServiceAvailability, args=(self.serviceList,))
-        t4 = threadWithReturn(target=self.avgServiceReliability, args=(self.serviceList,))
-        t5 = threadWithReturn(target=self.avgServiceLatency, args=(self.serviceList,))
+        pool.map_async(self.calculateSum, self.serviceList[:listSize/2])
+        pool.map_async(self.calculateSum, self.serviceList[listSize/2:])
+
+        pool.close() 
+        pool.join() 
+
+        self.rtAvrg2 = self.rtAvrg/listSize
+        self.aAvrg2 = self.aAvrg/listSize
+        self.tAvrg2 = self.tAvrg/listSize
+        self.rAvrg2 = self.rAvrg/listSize
+        self.lAvrg2 = self.lAvrg/listSize
+
+        pool = ThreadPool(4) 
         
-        t1.start()
-        t2.start()
-        t3.start()
-        t4.start()
-        t5.start()
-        
-        rtAvrg = t1.join()
-        aAvrg = t2.join()
-        tAvrg = t3.join()
-        rAvrg = t4.join()
-        lAvrg = t5.join()
+        pool.map_async(self.normalizeService, self.serviceList[:listSize/2])
+        pool.map_async(self.normalizeService, self.serviceList[listSize/2:])
 
-        for service in self.serviceList:
-            service.responseTime.normalize(rtAvrg)
-            service.availability.normalize(aAvrg)
-            service.throughput.normalize(tAvrg)
-            service.reliability.normalize(rAvrg)
-            service.latency.normalize(lAvrg)
+        pool.close() 
+        pool.join()
+
+        # listSize  = float(len(self.serviceList))
+        # t1 = threadWithReturn(target=self.avgServiceThroughput, args=(self.serviceList,))
+        # t2 = threadWithReturn(target=self.avgServiceResponseTime, args=(self.serviceList,))
+        # t3 = threadWithReturn(target=self.avgServiceAvailability, args=(self.serviceList,))
+        # t4 = threadWithReturn(target=self.avgServiceReliability, args=(self.serviceList,))
+        # t5 = threadWithReturn(target=self.avgServiceLatency, args=(self.serviceList,))
+        
+        # t1.start()
+        # t2.start()
+        # t3.start()
+        # t4.start()
+        # t5.start()
+        
+        # rtAvrg = t1.join()
+        # aAvrg = t2.join()
+        # tAvrg = t3.join()
+        # rAvrg = t4.join()
+        # lAvrg = t5.join()
+
+        # for service in self.serviceList:
+        #     service.responseTime.normalize(rtAvrg)
+        #     service.availability.normalize(aAvrg)
+        #     service.throughput.normalize(tAvrg)
+        #     service.reliability.normalize(rAvrg)
+        #     service.latency.normalize(lAvrg)
 
     def calculateQuality(self):
-        rtMax = max(service.responseTime.getNormalizedValue() for service in self.serviceList)
-        aMax = max(service.availability.getNormalizedValue() for service in self.serviceList)
-        tMax = max(service.throughput.getNormalizedValue() for service in self.serviceList)
-        rMax = max(service.reliability.getNormalizedValue() for service in self.serviceList)
-        lMax = max(service.latency.getNormalizedValue() for service in self.serviceList)
+        for service in self.serviceList:
+            if (service.responseTime.getNormalizedValue() > self.rtMax):
+                self.rtMax = service.responseTime.getNormalizedValue()
+            if (service.availability.getNormalizedValue() > self.aMax):
+                self.aMax = service.availability.getNormalizedValue()
+            if (service.throughput.getNormalizedValue() > self.tMax):
+                self.tMax = service.throughput.getNormalizedValue()
+            if (service.reliability.getNormalizedValue() > self.rMax):
+                self.rMax = service.reliability.getNormalizedValue()
+            if (service.latency.getNormalizedValue() > self.lMax):
+                self.lMax = service.latency.getNormalizedValue()
 
         for service in self.serviceList:
-            service.responseTime.setQuality(rtMax)
-            service.availability.setQuality(aMax)
-            service.throughput.setQuality(tMax)
-            service.reliability.setQuality(rMax)
-            service.latency.setQuality(lMax)
+            service.responseTime.setQuality(self.rtMax)
+            service.availability.setQuality(self.aMax)
+            service.throughput.setQuality(self.tMax)
+            service.reliability.setQuality(self.rMax)
+            service.latency.setQuality(self.lMax)
         
             service.updateWsrf()
         
         self.calculateMcda()
 
-    def maxServiceThroughput(self, slist):
-        maxValue = max(service.responseTime.getNormalizedValue() for service in slist)
-        return maxValue
-    def maxServiceResponseTime(self, slist):
-        maxValue = max(service.availability.getNormalizedValue() for service in slist)
-        return maxValue
-    def maxServiceAvailability(self, slist):
-        maxValue = max(service.throughput.getNormalizedValue() for service in slist)
-        return maxValue
-    def maxServiceReliability(self, slist):
-        maxValue = max(service.reliability.getNormalizedValue() for service in slist)
-        return maxValue
-    def maxServiceLatency(self, slist):
-        maxValue = max(service.latency.getNormalizedValue() for service in slist)
-        return maxValue
+    def serviceMax(self, service):
+        with self.lock:
+            if (service.responseTime.getNormalizedValue() > self.rtMax):
+                self.rtMax = service.responseTime.getNormalizedValue()
+            if (service.availability.getNormalizedValue() > self.aMax):
+                self.aMax = service.availability.getNormalizedValue()
+            if (service.throughput.getNormalizedValue() > self.tMax):
+                self.tMax = service.throughput.getNormalizedValue()
+            if (service.reliability.getNormalizedValue() > self.rMax):
+                self.rMax = service.reliability.getNormalizedValue()
+            if (service.latency.getNormalizedValue() > self.lMax):
+                self.lMax = service.latency.getNormalizedValue()
+
+    def qualifyService(self, service):
+        service.responseTime.setQuality(self.rtMax)
+        service.availability.setQuality(self.aMax)
+        service.throughput.setQuality(self.tMax)
+        service.reliability.setQuality(self.rMax)
+        service.latency.setQuality(self.lMax)
+    
+        service.updateWsrf()
 
     def calculateQualityP(self):
-        # pool = ThreadPool(4) 
+        self.rtMax = 0
+        self.aMax = 0
+        self.tMax = 0
+        self.rMax = 0
+        self.lMax = 0
 
-        # pool.map_async(self.maxServiceThroughput, self.serviceList)
-        # pool.map_async(self.maxServiceResponseTime, self.serviceList)
-        # pool.map_async(self.maxServiceAvailability, self.serviceList)
-        # pool.map_async(self.maxServiceReliability, self.serviceList)
-        # pool.map_async(self.maxServiceLatency, self.serviceList)
+        listSize = len(self.serviceList)
+        # ranges = listSize/4
 
-        # pool.close() 
-        # pool.join() 
+        pool = ThreadPool(4) 
 
-        t1 = threadWithReturn(target=self.maxServiceThroughput, args=(self.serviceList,))
-        t2 = threadWithReturn(target=self.maxServiceResponseTime, args=(self.serviceList,))
-        t3 = threadWithReturn(target=self.maxServiceAvailability, args=(self.serviceList,))
-        t4 = threadWithReturn(target=self.maxServiceReliability, args=(self.serviceList,))
-        t5 = threadWithReturn(target=self.maxServiceLatency, args=(self.serviceList,))
-        
-        t1.start()
-        t2.start()
-        t3.start()
-        t4.start()
-        t5.start()
-        
-        rtMax = t1.join()
-        aMax = t2.join()
-        tMax = t3.join()
-        rMax = t4.join()
-        lMax = t5.join()
+        pool.map_async(self.serviceMax, self.serviceList[:listSize/2])
+        pool.map_async(self.serviceMax, self.serviceList[listSize/2:])
 
-        for service in self.serviceList:
-            service.responseTime.setQuality(rtMax)
-            service.availability.setQuality(aMax)
-            service.throughput.setQuality(tMax)
-            service.reliability.setQuality(rMax)
-            service.latency.setQuality(lMax)
+        pool.close() 
+        pool.join() 
+
+        pool = ThreadPool(4) 
         
-            service.updateWsrf()
-        
+        pool.map_async(self.qualifyService, self.serviceList[:listSize/2])
+        pool.map_async(self.qualifyService, self.serviceList[listSize/2:])
+
+        pool.close() 
+        pool.join()
+
         self.calculateMcda()
+        # t1 = threadWithReturn(target=self.maxServiceThroughput, args=(self.serviceList,))
+        # t2 = threadWithReturn(target=self.maxServiceResponseTime, args=(self.serviceList,))
+        # t3 = threadWithReturn(target=self.maxServiceAvailability, args=(self.serviceList,))
+        # t4 = threadWithReturn(target=self.maxServiceReliability, args=(self.serviceList,))
+        # t5 = threadWithReturn(target=self.maxServiceLatency, args=(self.serviceList,))
+        
+        # t1.start()
+        # t2.start()
+        # t3.start()
+        # t4.start()
+        # t5.start()
+        
+        # rtMax = t1.join()
+        # aMax = t2.join()
+        # tMax = t3.join()
+        # rMax = t4.join()
+        # lMax = t5.join()
+
+        # for service in self.serviceList:
+        #     service.responseTime.setQuality(rtMax)
+        #     service.availability.setQuality(aMax)
+        #     service.throughput.setQuality(tMax)
+        #     service.reliability.setQuality(rMax)
+        #     service.latency.setQuality(lMax)
+        
+        #     service.updateWsrf()
+        
+        # self.calculateMcda()
 
     def printResult(self):
         for service in self.getServiceList():

@@ -40,8 +40,9 @@ class Data:
         else:
             self.normalizedValue = avrg/float(self.value)
             
-    def setQuality(self, max):
-        self.quality = self.normalizedValue*(self.weight/max)
+    def setQuality(self, maxv):
+        self.quality = float(self.normalizedValue)*(float(self.weight/maxv))
+        return self.quality
     
     def getQuality(self,):
         return self.quality
