@@ -4,6 +4,9 @@ from service import Service
 from data import Data
 import copy
 import random
+import threading as t
+import itertools    
+from multiprocessing.dummy import Pool as ThreadPool 
 
 class Mcda:
     responseTimeWeight = 1
@@ -76,6 +79,27 @@ class Mcda:
         for service in self.serviceList:
             service.updateMcda(wsrfMax)
 
+    def avgServiceThroughput(self, slist):
+        avg = sum(float(service.throughput.getValue()) for service in slist)/float(len(slist))
+        for service in slist:
+            service.throughput.normalize(avg)
+    def avgServiceResponseTime(self, slist):
+        avg = sum(float(service.responseTime.getValue()) for service in slist)/float(len(slist))
+        for service in slist:
+            service.responseTime.normalize(avg)
+    def avgServiceAvailability(self, slist):
+        avg = sum(float(service.availability.getValue()) for service in slist)/float(len(slist))
+        for service in slist:
+            service.availability.normalize(avg)
+    def avgServiceReliability(self, slist):
+        avg = sum(float(service.reliability.getValue()) for service in slist)/float(len(slist))
+        for service in slist:
+            service.reliability.normalize(avg)
+    def avgServiceLatency(self, slist):
+        avg = sum(float(service.latency.getValue()) for service in slist)/float(len(slist))
+        for service in slist:
+            service.latency.normalize(avg)
+
     def normalizeData(self):
         rtAvrg = sum(float(service.responseTime.getValue()) for service in self.serviceList)/float(len(self.serviceList))
         aAvrg = sum(float(service.availability.getValue()) for service in self.serviceList)/float(len(self.serviceList))
@@ -88,6 +112,20 @@ class Mcda:
             service.throughput.normalize(tAvrg)
             service.reliability.normalize(rAvrg)
             service.latency.normalize(lAvrg)
+
+    def normalizeDataP(self):
+        pool = ThreadPool(4) 
+        # results = pool.map(urllib2.urlopen, urls)
+
+        result_cubes = pool.map_async(self.avgServiceThroughput, self.serviceList)
+        result_cubes = pool.map_async(self.avgServiceResponseTime, self.serviceList)
+        result_cubes = pool.map_async(self.avgServiceAvailability, self.serviceList)
+        result_cubes = pool.map_async(self.avgServiceReliability, self.serviceList)
+        result_cubes = pool.map_async(self.avgServiceLatency, self.serviceList)
+
+
+        pool.close() 
+        pool.join() 
 
     def calculateQuality(self):
         rtMax = max(service.responseTime.getNormalizedValue() for service in self.serviceList)

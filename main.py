@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from mcda import Mcda
+import time
 
 mcda = Mcda(True)
 mcda.setServiceNameColumn(5)
@@ -16,12 +17,21 @@ mcda.setThroughputWeight(1)
 mcda.setReliabilityWeight(1)
 mcda.setLatencyWeight(1)
 
-mcda.loadFromRandom(200000)
+mcda.loadFromRandom(500000)
 # mcda.loadFromCSV('data.csv')
 
-mcda.normalizeData()
-mcda.calculateQuality()
+start = time.clock()
 
-mcda.storeResult()
+mcda.normalizeData()
+#mcda.calculateQuality()
+print("sequencial time: "+str(time.clock() - start))
+start = time.clock()
+
+mcda.normalizeDataP()
+#mcda.calculateQualityP()
+
+print("thread time: "+str(time.clock() - start))
+
+#mcda.storeResult()
 
 # mcda.printResult()
