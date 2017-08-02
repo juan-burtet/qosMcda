@@ -17,8 +17,8 @@ mcda.setThroughputWeight(1)
 mcda.setReliabilityWeight(1)
 mcda.setLatencyWeight(1)
 
-mcda.loadFromRandom(50000)
-#mcda.loadFromCSV('data.csv')
+#mcda.loadFromRandom(50000)
+mcda.loadFromCSV('data.csv')
 
 start = time.clock()
 

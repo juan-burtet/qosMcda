@@ -157,11 +157,11 @@ class Mcda:
         pool.close() 
         pool.join() 
 
-        self.rtAvrg2 = self.rtAvrg/listSize
-        self.aAvrg2 = self.aAvrg/listSize
-        self.tAvrg2 = self.tAvrg/listSize
-        self.rAvrg2 = self.rAvrg/listSize
-        self.lAvrg2 = self.lAvrg/listSize
+        self.rtAvrg = self.rtAvrg/listSize
+        self.aAvrg = self.aAvrg/listSize
+        self.tAvrg = self.tAvrg/listSize
+        self.rAvrg = self.rAvrg/listSize
+        self.lAvrg = self.lAvrg/listSize
 
         pool = ThreadPool(4) 
         
