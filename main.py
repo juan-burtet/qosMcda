@@ -1,38 +1,50 @@
 #!/usr/bin/env python3
+
 from mcda import Mcda
+from attribute import Attribute
 import time
+import csv
 
-mcda = Mcda(True)
-mcda.setServiceNameColumn(5)
-mcda.setResponseTimeColumn(0)
-mcda.setAvailabilityColumn(1)
-mcda.setThroughputColumn(2)
-mcda.setReliabilityColumn(3)
-mcda.setLatencyColumn(4)
-# mcda.skipFirstRow(True)
+attributeList = []
+serviceList = []
 
-mcda.setResponseTimeWeight(1)
-mcda.setAvailabilityWeight(1)
-mcda.setThroughputWeight(1)
-mcda.setReliabilityWeight(1)
-mcda.setLatencyWeight(1)
+attributeList.append(Attribute("Response Time", maximized=True, weight=1, minValue=0, maxValue=100))
+attributeList.append(Attribute("Availability", maximized=True, weight=1, minValue=0, maxValue=100))
+attributeList.append(Attribute("Throughput", maximized=True, weight=1, minValue=0, maxValue=100))
+attributeList.append(Attribute("Reliability", maximized=True, weight=1, minValue=0, maxValue=100))
+attributeList.append(Attribute("Latency", maximized=True, weight=1, minValue=0, maxValue=100))
 
-#mcda.loadFromRandom(50000)
-mcda.loadFromCSV('data.csv')
+mcda = Mcda(attributeList, serviceList)
 
-start = time.clock()
+with open("results.csv", "wb") as csv_file:
+    writer = csv.writer(csv_file, delimiter=',')
+    l = [500,1000,5000,50000,500000]
+    for num in l:
+        writer.writerow([num])
+        mcda.loadFromRandom(num)
+        #mcda.loadFromCSV('data.csv')
 
-mcda.normalizeData()
-mcda.calculateQuality()
+        # start = time.clock()
 
-print("sequencial time: "+str(time.clock() - start))
-start = time.clock()
+        # mcda.normalizeData()
+        # mcda.calculateQuality()
 
-mcda.normalizeDataP()
-mcda.calculateQualityP()
+        # print("sequencial time: "+str(time.clock() - start))
+        for thr in range(1, 5):
+            
+            writer.writerow([thr])            
+            resultList = []
+            for x in range(0, 9):
+                start = time.clock()
 
-print("thread time: "+str(time.clock() - start))
+                mcda.normalizeDataP(thr)
+                mcda.calculateQualityP(thr)
 
-mcda.storeResult()
+                resultList.append(str(time.clock() - start).replace(".", ","))
+
+            writer.writerow(resultList)
+
+
+# mcda.storeResult()
 
 # mcda.printResult()

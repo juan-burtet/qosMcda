@@ -1,14 +1,17 @@
 #!/usr/bin/env python3
-class Data:
+import random
+class Attribute:
     
     quality = None
     normalizedValue = None
 
-    def __init__(self, name, maximized=True, value=None, weight=1):
+    def __init__(self, name, maximized=True, value=None, weight=1, minValue=0, maxValue=100):
         self.name = name
         self.value = value
         self.weight = weight
         self.maximized = maximized
+        self.minValue=min
+        self.maxValue=max
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -18,9 +21,27 @@ class Data:
 
     def setValue(self, value):
         self.value = value
+    
+    def setRandomValue(self, value):
+        self.value = random.randint(self.minValue, self.maxValue)
+
+    def getName(self):
+        return self.name
 
     def getValue(self):
         return self.value
+
+    def getMinValue(self):
+        return self.minValue
+
+    def getMaxValue(self):
+        return self.maxValue
+
+    def setMinValue(self, value):
+        self.minValue = value
+
+    def setMaxValue(self, value):
+        self.maxValue = value
 
     def setNormalizedValue(self, value):
         self.normalizedValue = value
