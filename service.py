@@ -3,9 +3,9 @@ from attribute import Attribute
 
 class Service:
     
-    attributes = {}
+    attributes = []
     name = None
-    wsrf = None
+    wsrf = 0
     mcda = None
     classification = None
 

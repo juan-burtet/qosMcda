@@ -5,7 +5,7 @@ from attribute import Attribute
 import random
 import copy
 
-class datasetLoader:
+class DatasetLoader:
 
     attributeList={}
     serviceList=[]

@@ -10,8 +10,8 @@ class Attribute:
         self.value = value
         self.weight = weight
         self.maximized = maximized
-        self.minValue=min
-        self.maxValue=max
+        self.minValue=minValue
+        self.maxValue=maxValue
 
     def __str__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
@@ -22,7 +22,7 @@ class Attribute:
     def setValue(self, value):
         self.value = value
     
-    def setRandomValue(self, value):
+    def setRandomValue(self):
         self.value = random.randint(self.minValue, self.maxValue)
 
     def getName(self):

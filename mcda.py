@@ -20,6 +20,9 @@ class Mcda:
             self.atributeList = atributeList
         else:
             self.atributeList = self.serviceList[0].getAttributes()
+
+        self.avrgs = [0]*len(self.atributeList)
+        self.maxes = [0]*len(self.atributeList)
     
     def calculateMcda(self):
         wsrfMax = max(service.getWsrf() for service in self.serviceList)
@@ -29,31 +32,26 @@ class Mcda:
     
     def normalizeData(self):
         listSize  = float(len(self.serviceList))
+        
         for service in self.serviceList:
-            for i, attribute in service.getAttributes():
-                if !self.avrgs[i]:
-                    self.avrgs[i] += float(attribute.getValue())
-                else:
-                    self.avrgs[i] = float(attribute.getValue())
-
+            for i, attribute in enumerate(service.getAttributes()):
+                self.avrgs[i] += float(attribute.getValue())
+                
         for avrg in self.avrgs:
             avrg = float(avrg/listSize)
 
         for service in self.serviceList:
-            for i, attribute in service.getAttributes():
+            for i, attribute in enumerate(service.getAttributes()):
                 attribute.normalize(self.avrgs[i])
 
     def calculateSum(self, service, avrgs):
-        with self.lock:
-            for i, attribute in service.getAttributes():
-                if !self.avrgs[i]:
-                    self.avrgs[i] += float(attribute.getValue())
-                else:
-                    self.avrgs[i] = float(attribute.getValue())
+        # with self.lock:
+        for i, attribute in enumerate(service.getAttributes()):
+            self.avrgs[i] += float(attribute.getValue())
 
     def normalizeService(self, service):
         for service in self.serviceList:
-            for i, attribute in service.getAttributes():
+            for i, attribute in enumerate(service.getAttributes()):
                 attribute.normalize(self.avrgs[i])
 
     def normalizeDataP(self,thr):
@@ -74,12 +72,12 @@ class Mcda:
 
     def calculateQuality(self):
         for service in self.serviceList:
-            for i, attribute in service.getAttributes():
+            for i, attribute in enumerate(service.getAttributes()):
                 if (attribute.getNormalizedValue() > self.maxes[i]):
                     self.maxes[i] = attribute.getNormalizedValue()
 
         for service in self.serviceList:
-            for i, attribute in service.getAttributes():
+            for i, attribute in enumerate(service.getAttributes()):
                 attribute.setQuality(self.maxes[i])
                     
             service.updateWsrf()
@@ -87,13 +85,13 @@ class Mcda:
         self.calculateMcda()
 
     def serviceMax(self, service):
-        with self.lock:
-            for i, attribute in service.getAttributes():
-                if (attribute.getNormalizedValue() > self.maxes[i]):
-                    self.maxes[i] = attribute.getNormalizedValue()
+        # with self.lock:
+        for i, attribute in enumerate(service.getAttributes()):
+            if (attribute.getNormalizedValue() > self.maxes[i]):
+                self.maxes[i] = attribute.getNormalizedValue()
 
     def qualifyService(self, service):
-        for i, attribute in service.getAttributes():
+        for i, attribute in enumerate(service.getAttributes()):
             attribute.setQuality(self.maxes[i])
     
         service.updateWsrf()
@@ -115,10 +113,10 @@ class Mcda:
 
     def printResult(self):
         for service in self.getServiceList():
-            for i, attribute in service.getAttributes():
+            for i, attribute in enumerate(service.getAttributes()):
                 print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(attribute))
 
-    def storeResult(self, fileName="./newData.csv"):
+    def storeResult(self, fileName="./mcdaResult.csv"):
         with open(fileName, "wb") as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
             serviceHeads = []
