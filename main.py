@@ -10,13 +10,21 @@ attributeList = []
 serviceList = []
 
 attributeList.append(Attribute("Response Time", maximized=False, weight=1, minValue=100, maxValue=400))
-attributeList.append(Attribute("Availability", maximized=True, weight=1, minValue=70, maxValue=100))
-attributeList.append(Attribute("Throughput", maximized=True, weight=1, minValue=1, maxValue=15))
-attributeList.append(Attribute("Reliability", maximized=True, weight=1, minValue=50, maxValue=80))
-attributeList.append(Attribute("Latency", maximized=False, weight=1, minValue=1, maxValue=200))
+attributeList.append(Attribute("Availability", maximized=True, weight=1, minValue=1, maxValue=100))
+attributeList.append(Attribute("Throughput", maximized=True, weight=1, minValue=1, maxValue=30))
+attributeList.append(Attribute("Reliability", maximized=True, weight=1, minValue=1, maxValue=100))
+attributeList.append(Attribute("Latency", maximized=False, weight=1, minValue=1, maxValue=300))
+attributeList.append(Attribute("Successability", maximized=True, weight=1, minValue=1, maxValue=100))
+attributeList.append(Attribute("Agility", maximized=True, weight=1, minValue=1, maxValue=100))
 
 dataset = DatasetLoader(attributeList)
-serviceList = dataset.generateRandom(1000)
+
+startDataset = time.clock()
+
+serviceList = dataset.generateRandom(500000)
+
+print("Tempo de geracao de dataset: " +
+      str(time.clock() - startDataset) + "s\n")
 
 start = time.clock()
 
