@@ -117,7 +117,7 @@ class Mcda:
                 print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(attribute))
 
     def storeResult(self, fileName="./mcdaResult.csv"):
-        with open(fileName, "wb") as csv_file:
+        with open(fileName, "w") as csv_file:
             writer = csv.writer(csv_file, delimiter=',')
             serviceHeads = []
 
