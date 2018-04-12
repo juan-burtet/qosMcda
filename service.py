@@ -34,10 +34,22 @@ class Service:
             self.classification = 3
         else:
             self.classification = 4
+    
+    def toDict(self):
+        d = dict()
+        d.update({"name":self.name})
+        for attribute in self.attributes:
+            d.update(attribute.toDict())
+
+        return d
 
     def getAttributes(self):
         return self.attributes
     
+    # Get especified attribute by name
+    # def getAttributes(self, name):
+    #     return filter(lambda x: x.getName() == name, self.attributes)            
+            
     def getMcda(self):
         return self.mcda
     

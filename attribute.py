@@ -19,6 +19,9 @@ class Attribute:
     def __repr__(self):
         return str(self.__class__) + ": " + str(self.__dict__)
 
+    def toDict(self): 
+        return {self.name:self.value}
+
     def setValue(self, value):
         self.value = value
     

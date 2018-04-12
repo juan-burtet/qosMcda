@@ -13,6 +13,14 @@ class DatasetLoader:
     def __init__(self, atrList):
         self.attributeList = atrList
 
+    def toDict(self):
+        l = []
+
+        for service in self.serviceList:
+            l.append(service.toDict())        
+
+        return l
+
     def generateRandom(self, size):
         for x in range(0, size):
             newService = None            
