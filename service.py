@@ -1,7 +1,13 @@
 #!/usr/bin/env python3
 from attribute import Attribute
 
-# 
+# Classe que representa um Serviço
+# Um Serviço possui:
+#	- Nome
+#	- Lista de Atributos
+# - Valor WSRF do Serviço
+#	- Valor MCDA do Serviço
+#	- Classificação do Serviço
 class Service:
     
     # Construtor do Serviço
@@ -15,9 +21,9 @@ class Service:
         # Valor do wsrf = 0
         self.wsrf = 0									
         # Valor do MCDA = None
-        mcda = None										
+        self.mcda = None										
         # Classificação do Serviço = None
-        classification = None					
+        self.classification = None					
 		
 		# Atualizando a saida str
 		# @return Nome do Serviço
