@@ -14,6 +14,7 @@ class Service:
     # @param name - Nome do Serviço
     # @param attributes - Lista de Atributos do Serviço
     def __init__(self, name, attributes):
+        
         # Nome do Serviço
         self.name = name							
         # Lista de Atributos
@@ -25,12 +26,12 @@ class Service:
         # Classificação do Serviço = None
         self.classification = None					
 		
-		# Atualizando a saida str
+		# Saida str
 		# @return Nome do Serviço
     def __str__(self):
         return self.name
     
-    # Atualizando a saida repr
+    # Saida repr
     # @return Nome do Serviço
     def __repr__(self):
         return self.name
