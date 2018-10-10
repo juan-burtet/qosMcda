@@ -8,12 +8,7 @@ from multiprocessing.dummy import Pool as ThreadPool
 
 class Mcda:
 
-    serviceList=[]
-    atributeList=[]
-
-    avrgs = []    
-    maxes = []
-
+  
     def __init__(self, serviceList, atributeList=None):
         self.serviceList = serviceList
         if atributeList != None:
@@ -111,38 +106,56 @@ class Mcda:
 
         self.calculateMcda()
 
+    # Imprime o Resultado MCDA
     def printResult(self):
+        
+        # Passa por todos os Serviços
         for service in self.getServiceList():
+            # passa pelos atributos de todos os serviços
             for i, attribute in enumerate(service.getAttributes()):
-                print(service.getName()+" (Classification="+str(service.getClassification())+"): "+str(attribute))
-
+                # Imprime (Nome do Serviço + Classificação + atributos
+                print(service.getName() + " (Classification=" + str(service.getClassification()) + "): " + str(attribute))
+		
+		# Escreve o Resultado MCDA em um arquivo .csv
+		# @param fileName - Nome do arquivo
     def storeResult(self, fileName="./mcdaResult.csv"):
+        
+        # Abre o arquivo para escrita como csv
         with open(fileName, "w") as csv_file:
+            
+						# Começa a escrita no arquivo            
             writer = csv.writer(csv_file, delimiter=',')
+            
+            # Cabeçalho pega o nome dos atributos
             serviceHeads = []
-
             for attribute in self.serviceList[0].getAttributes():
                 serviceHeads.append(attribute.getName())
-
-            serviceHeads.append("")
+						
+						# Cabeçalho adiciona 'WSRF', 'MCDA' e 'Classificação'
             serviceHeads.append("WSRF")
             serviceHeads.append("MCDA")
             serviceHeads.append("Classification")
             
+            # Escreve a linha
             writer.writerow(serviceHeads)
-
+						
+						# Passa por todos os serviços
             for service in self.getServiceList():
                 serviceInfoArr = []
 
+                # Pega os valores dos atributos
                 for attribute in service.getAttributes():
                     serviceInfoArr.append(attribute.getValue())
-
-                serviceInfoArr.append("")
+								
+								# pega os valores de WSRF, MCDA e Classificação
                 serviceInfoArr.append("{0:.2f}".format(service.getWsrf()))
                 serviceInfoArr.append(service.getMcda())
                 serviceInfoArr.append(service.getClassification())
-
+								
+								# escreve a linha
                 writer.writerow(serviceInfoArr)
 
+    # Retorna a lista de Serviços
+    # @return lista de serviços
     def getServiceList(self):
         return self.serviceList
