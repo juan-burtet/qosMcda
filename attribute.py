@@ -10,16 +10,16 @@ import random
 #	- Valor Minimo
 #	- Valor Maximo
 #	- Qualidade do Atributo
-# - Valor Normalizado
+#   - Valor Normalizado
 class Attribute:
     
-		# Construtor do Attribute
-		# @param name - Nome do Atributo
-		# @param maximized - Indica se o Atributo deve ser maximizado 
-		# @param value - Valor do Atributo
-		# @param weight - Peso do Atributo
-		# @param minValue - Valor minimo do Atributo
-		#	@param maxValue - Valor maximo do Atributo
+	# Construtor do Attribute
+	# @param name - Nome do Atributo
+	# @param maximized - Indica se o Atributo deve ser maximizado 
+	# @param value - Valor do Atributo
+	# @param weight - Peso do Atributo
+	# @param minValue - Valor minimo do Atributo
+	# @param maxValue - Valor maximo do Atributo
     def __init__(self, name, maximized=True, value=None, weight=1, minValue=0, maxValue=100):
         
         # Nome do Atributo
