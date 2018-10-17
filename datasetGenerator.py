@@ -7,11 +7,11 @@ import copy
 
 class DatasetLoader:
 
-    attributeList={}
-    serviceList=[]
 
     def __init__(self, atrList):
         self.attributeList = atrList
+        self.serviceList=[]
+        self.qtServices = 0
 
     def toDict(self):
         l = []
@@ -20,18 +20,29 @@ class DatasetLoader:
             l.append(service.toDict())        
 
         return l
-
+		
+	# É adicionado n atributos random a lista de serviços
+	# @param size - Quantos atributos serem gerados
+	# @return retorna lista de serviços completa
     def generateRandom(self, size):
-        for x in range(0, size):
+        
+        # Percorre pela quantidade de serviços a serem gerados
+        for _ in range(size):
             newService = None            
             
+            # Gera valores random para todos os atributos
             for attribute in self.attributeList:
                 attribute.setRandomValue()
-
-            newService = Service('service-'+str(x), self.attributeList)
-
+						
+			# Novo serviço random criado
+            newService = Service('service-' + str(self.qtServices), self.attributeList)
+            # Aumenta a quantidade de serviços
+            self.qtServices += 1
+						
+			# Adiciona o novo serviço na lista de serviços
             self.serviceList.append(copy.deepcopy(newService))
-
+				
+				# Retorna a lista de Serviços
         return self.serviceList
 
     # def loadFromCSV(self, file='data.csv'):
@@ -57,8 +68,14 @@ class DatasetLoader:
 
     #                 self.serviceList.append(copy.deepcopy(newService))
 
+    # Guarda o dataset em um arquivo .csv
+    # @param fileName - Nome do arquivo csv
     def storeDataset(self, fileName="./newDataset.csv"):
-        with open(fileName, "wb") as csv_file:
+        
+        # abre o arquivo para escrita
+        with open(fileName, "w") as csv_file:
+            
+            
             writer = csv.writer(csv_file, delimiter=',')
             serviceHeads = []
 
