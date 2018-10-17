@@ -61,6 +61,7 @@ class Attribute:
     
     # Adiciona um valor aleatório ao atributo
     def setRandomValue(self):
+        random.seed()
         self.value = round(random.uniform(self.minValue, self.maxValue), 2)
 		
 		# Retorna o nome do Atributo
