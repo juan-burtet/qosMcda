@@ -9,14 +9,23 @@ from multiprocessing.dummy import Pool as ThreadPool
 class Mcda:
 
   
+    # Construtor do MCDA
+    # @param serviceList - Lista de serviço
+    # @param atributeList - Lista de Atributos
     def __init__(self, serviceList, atributeList=None):
+        
+        # Lista de Serviços
         self.serviceList = serviceList
-        if atributeList != None:
-            self.atributeList = atributeList
-        else:
+        # Lista de atributos
+        self.atributeList = atributeList
+
+        # Se a lista de atributos for vazia, pega a lista dos serviços
+        if self.atributeList == None:
             self.atributeList = self.serviceList[0].getAttributes()
 
+        # Vetor de médias de cada atributo
         self.avrgs = [0]*len(self.atributeList)
+        # Vetor de máximos de cada atributo
         self.maxes = [0]*len(self.atributeList)
     
     def calculateMcda(self):
@@ -91,6 +100,7 @@ class Mcda:
     
         service.updateWsrf()
 
+    # 
     def calculateQualityP(self,thr):
         listSize = len(self.serviceList)
 
@@ -116,14 +126,14 @@ class Mcda:
                 # Imprime (Nome do Serviço + Classificação + atributos
                 print(service.getName() + " (Classification=" + str(service.getClassification()) + "): " + str(attribute))
 		
-		# Escreve o Resultado MCDA em um arquivo .csv
-		# @param fileName - Nome do arquivo
+	# Escreve o Resultado MCDA em um arquivo .csv
+	# @param fileName - Nome do arquivo
     def storeResult(self, fileName="./mcdaResult.csv"):
         
         # Abre o arquivo para escrita como csv
         with open(fileName, "w") as csv_file:
             
-						# Começa a escrita no arquivo            
+			# Começa a escrita no arquivo            
             writer = csv.writer(csv_file, delimiter=',')
             
             # Cabeçalho pega o nome dos atributos
@@ -131,7 +141,7 @@ class Mcda:
             for attribute in self.serviceList[0].getAttributes():
                 serviceHeads.append(attribute.getName())
 						
-						# Cabeçalho adiciona 'WSRF', 'MCDA' e 'Classificação'
+			# Cabeçalho adiciona 'WSRF', 'MCDA' e 'Classificação'
             serviceHeads.append("WSRF")
             serviceHeads.append("MCDA")
             serviceHeads.append("Classification")
@@ -139,7 +149,7 @@ class Mcda:
             # Escreve a linha
             writer.writerow(serviceHeads)
 						
-						# Passa por todos os serviços
+			# Passa por todos os serviços
             for service in self.getServiceList():
                 serviceInfoArr = []
 
@@ -147,12 +157,12 @@ class Mcda:
                 for attribute in service.getAttributes():
                     serviceInfoArr.append(attribute.getValue())
 								
-								# pega os valores de WSRF, MCDA e Classificação
+				# pega os valores de WSRF, MCDA e Classificação
                 serviceInfoArr.append("{0:.2f}".format(service.getWsrf()))
                 serviceInfoArr.append(service.getMcda())
                 serviceInfoArr.append(service.getClassification())
 								
-								# escreve a linha
+				# escreve a linha
                 writer.writerow(serviceInfoArr)
 
     # Retorna a lista de Serviços
