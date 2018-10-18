@@ -5,20 +5,34 @@ from attribute import Attribute
 import random
 import copy
 
+# Classe usada pra gerar um Dataset
+# Um DatasetLoader possui:
+#   - Uma lista de atributos
+#   - Uma lista de serviços
+#   - A quantidade de serviços
 class DatasetLoader:
 
-
+    # Construtor do DatasetLoader
+    # @param atrList - lista de atributos
     def __init__(self, atrList):
+
+        # Lista de atributos
         self.attributeList = atrList
-        self.serviceList=[]
+        # Lista de serviços
+        self.serviceList = []
+        # Quantidade de Serviços
         self.qtServices = 0
 
+    # Retorna os serviços em formato Dict
+    # @return serviços em formato dict
     def toDict(self):
         l = []
-
+        
+        # passa por todos os serviços
         for service in self.serviceList:
             l.append(service.toDict())        
-
+        
+        # retorna a lista em formato dict
         return l
 		
 	# É adicionado n atributos random a lista de serviços
@@ -42,31 +56,8 @@ class DatasetLoader:
 			# Adiciona o novo serviço na lista de serviços
             self.serviceList.append(copy.deepcopy(newService))
 				
-				# Retorna a lista de Serviços
+		# Retorna a lista de Serviços
         return self.serviceList
-
-    # def loadFromCSV(self, file='data.csv'):
-            
-    #     with open(file, "rb") as f:
-    #         reader = csv.reader(f)
-
-    #         if (self.skipFirstRow):
-    #             next(reader)
-
-    #         for row in reader:
-    #             newService = None
-    #             if row[0] in (None, ""):
-    #                 break
-    #             else:                    
-    #                 newService = Service(row[self.serviceNameColumn], self.responseTime, self.availability, self.throughput, self.reliability, self.latency)
-
-    #                 newService.setResponseTime(float(row[self.responseTimeColumn].replace(',','.')))
-    #                 newService.setAvailability(float(row[self.availabilityColumn].replace(',','.')))
-    #                 newService.setThroughput(float(row[self.throughputColumn].replace(',','.')))
-    #                 newService.setReliability(float(row[self.reliabilityColumn].replace(',','.')))
-    #                 newService.setLatency(float(row[self.latencyColumn].replace(',','.')))
-
-    #                 self.serviceList.append(copy.deepcopy(newService))
 
     # Guarda o dataset em um arquivo .csv
     # @param fileName - Nome do arquivo csv
@@ -75,16 +66,16 @@ class DatasetLoader:
         # abre o arquivo para escrita
         with open(fileName, "w") as csv_file:
             
-            
+            # escritor do csv
             writer = csv.writer(csv_file, delimiter=',')
+            
+            # Escreve o cabeçalho no csv
             serviceHeads = []
-
             for attribute in self.attributeList:
                 serviceHeads.append(attribute.getName());
-                # serviceHeads.insert(self.availabilityColumn, "Availability");
-            
             writer.writerow(serviceHeads)
 
+            # Escreve todos os serviços
             for service in self.serviceList:
                 serviceInfoArr = []
 
