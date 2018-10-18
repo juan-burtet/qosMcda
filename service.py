@@ -5,7 +5,7 @@ from attribute import Attribute
 # Um Serviço possui:
 #	- Nome
 #	- Lista de Atributos
-# - Valor WSRF do Serviço
+#   - Valor WSRF do Serviço
 #	- Valor MCDA do Serviço
 #	- Classificação do Serviço
 class Service:
@@ -26,8 +26,8 @@ class Service:
         # Classificação do Serviço = None
         self.classification = None					
 		
-		# Saida str
-		# @return Nome do Serviço
+	# Saida str
+	# @return Nome do Serviço
     def __str__(self):
         return self.name
     
@@ -39,18 +39,18 @@ class Service:
     # Atualiza o valor Wsrf
     def updateWsrf(self):
     
-    		# Soma os valores de Qualidade dos Atributos
+    	# Soma os valores de Qualidade dos Atributos
         for attribute in self.attributes:
             self.wsrf += attribute.getQuality()
 		
-		# Atualiza o valor MCDA e a Classificação do serviço
-		# @param WsrfMax - Wsrf Máximo de todos os serviços
+	# Atualiza o valor MCDA e a Classificação do serviço
+	# @param WsrfMax - Wsrf Máximo de todos os serviços
     def updateMcda(self, wsrfMax):
         
         # Calcula o valor MCDA
         self.mcda = round((100*self.wsrf)/wsrfMax)
 				
-				# Se o mcda for acima de 70, classificação = 1
+		# Se o mcda for acima de 70, classificação = 1
         if (self.mcda > 70):
             self.classification = 1
         # Se o mcda for acima de 60, classificação = 2
@@ -73,15 +73,11 @@ class Service:
 
         return d
 		
-		# Retorna os atributos do serviço
-		# @return Lista de Atributos
+	# Retorna os atributos do serviço
+	# @return Lista de Atributos
     def getAttributes(self):
         return self.attributes
-    
-    # Get especified attribute by name
-    # def getAttributes(self, name):
-    #     return filter(lambda x: x.getName() == name, self.attributes)            
-            
+               
     # Retorna o valor MCDA do serviço
     # @return Valor MCDA do serviço
     def getMcda(self):
@@ -92,8 +88,8 @@ class Service:
     def getClassification(self):
         return self.classification
 
-		# Retorna o Wsrf do serviço
-		# @return Valor wsrf do Serviço
+	# Retorna o Wsrf do serviço
+	# @return Valor wsrf do Serviço
     def getWsrf(self):
         return self.wsrf
     

@@ -64,38 +64,38 @@ class Attribute:
         random.seed()
         self.value = round(random.uniform(self.minValue, self.maxValue), 2)
 		
-		# Retorna o nome do Atributo
-		# @return nome do atributo
+	# Retorna o nome do Atributo
+	# @return nome do atributo
     def getName(self):
         return self.name
 		
-		# Retorna o valor do Atributo
-		# @return valor do atributo
+	# Retorna o valor do Atributo
+	# @return valor do atributo
     def getValue(self):
         return self.value
 		
-		# Retorna o valor minimo do Atributo
-		# @return valor minimo do atributo
+	# Retorna o valor minimo do Atributo
+	# @return valor minimo do atributo
     def getMinValue(self):
         return self.minValue
 		
-		# Retorna o valor maximo do Atributo
-		# @return valor maximo do atributo
+	# Retorna o valor maximo do Atributo
+	# @return valor maximo do atributo
     def getMaxValue(self):
         return self.maxValue
 		
-		# Atualiza o valor minimo do atributo
-		# @param value - valor minimo
+	# Atualiza o valor minimo do atributo
+	# @param value - valor minimo
     def setMinValue(self, value):
         self.minValue = value
 		
-		# Atualiza o valor maximo do atributo
-		# @param value - valor maximo
+	# Atualiza o valor maximo do atributo
+	# @param value - valor maximo
     def setMaxValue(self, value):
         self.maxValue = value
 		
-		# Atualiza o valor normalizado do atributo
-		# @param value - Valor Normalizado
+	# Atualiza o valor normalizado do atributo
+	# @param value - Valor Normalizado
     def setNormalizedValue(self, value):
         self.normalizedValue = value
     
@@ -114,12 +114,12 @@ class Attribute:
     def setMaximized(self, value):
         self.maximized = value
 
-		# Normaliza o valor do Atributo
-		# @param avrg- - Média dos valores dos atributos
+	# Normaliza o valor do Atributo
+	# @param avrg- - Média dos valores dos atributos
     def normalize(self, avrg):
     
-    		# Se o valor precisa ser maximizado, 
-    		# ValorNormalizado = valor/media
+    	# Se o valor precisa ser maximizado, 
+    	# ValorNormalizado = valor/media
         if (self.maximized == True):            
             self.normalizedValue = self.value/float(avrg)
         # Se o valor não precisa ser maximizado,
@@ -132,7 +132,7 @@ class Attribute:
     # @return Qualidade do Serviço
     def setQuality(self, maxv):
     		
-    		# Qualidade = (ValorNormalizado)*(Peso/MaiorValorNormalizado)
+    	# Qualidade = (ValorNormalizado)*(Peso/MaiorValorNormalizado)
         self.quality = float(self.normalizedValue)*(float(self.weight/maxv))
         return self.quality
     
